@@ -1,4 +1,37 @@
 title: Candlebench
 description: Learn local ML model inspection, embeddings, similarity, and benchmarking with Candle.
-theme: jekyll-theme-cayman
 show_downloads: false
+
+defaults:
+  - scope:
+      path: ""
+    values:
+      layout: default
+
+docs_nav:
+  - title: Start Here
+    links:
+      - title: Overview
+        url: /
+      - title: Getting Started
+        url: /getting-started/
+  - title: Learn
+    links:
+      - title: ML Concepts
+        url: /concepts/
+      - title: Model Files
+        url: /model-files/
+  - title: Commands
+    links:
+      - title: CLI Commands
+        url: /commands/
+      - title: Performance
+        url: /performance/
+  - title: Reference
+    links:
+      - title: Examples
+        url: /examples/
+      - title: Glossary
+        url: /glossary/
+      - title: Publishing
+        url: /publishing/
