@@ -1,0 +1,16 @@
+# Rust build output
+/target/
+
+# Local OS/editor files
+.DS_Store
+*.swp
+*.swo
+
+# Local environment and logs
+.env
+.env.*
+*.log
+
+# Large local model artifacts
+*.safetensors
+*.gguf
