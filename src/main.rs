@@ -133,6 +133,116 @@ enum Commands {
         json: bool,
     },
 
+    /// Compute pairwise cosine similarity between embedded texts.
+    Similarity {
+        /// Hub model repo. Bare names are resolved under sentence-transformers/.
+        #[arg(long, default_value = "all-MiniLM-L6-v2")]
+        repo: String,
+
+        /// Optional revision, branch, tag, or commit.
+        #[arg(long)]
+        revision: Option<String>,
+
+        /// Config filename in the Hub repo, or a local path when all three file args are local.
+        #[arg(long, default_value = "config.json")]
+        config_file: String,
+
+        /// Tokenizer filename in the Hub repo, or a local path when all three file args are local.
+        #[arg(long, default_value = "tokenizer.json")]
+        tokenizer_file: String,
+
+        /// Safetensors filename in the Hub repo, or a local path when all three file args are local.
+        #[arg(long, default_value = "model.safetensors")]
+        weights_file: String,
+
+        /// Optional Hugging Face cache directory.
+        #[arg(long)]
+        cache_dir: Option<PathBuf>,
+
+        /// Text to compare. Repeat at least twice.
+        #[arg(long = "text", required = true)]
+        texts: Vec<String>,
+
+        /// Disable L2 normalization before similarity calculation.
+        #[arg(long)]
+        no_normalize: bool,
+
+        /// Maximum tokenizer sequence length.
+        #[arg(long, default_value_t = 512)]
+        max_length: usize,
+
+        /// Backend: cpu, metal, or auto.
+        #[arg(long, default_value = "cpu", value_parser = parse_backend)]
+        backend: Backend,
+
+        /// Disable hf-hub progress bars.
+        #[arg(long)]
+        no_progress: bool,
+
+        /// Output pairwise scores as JSON.
+        #[arg(long)]
+        json: bool,
+    },
+
+    /// Benchmark BERT-style embedding throughput with a loaded model.
+    BenchEmbed {
+        /// Hub model repo. Bare names are resolved under sentence-transformers/.
+        #[arg(long, default_value = "all-MiniLM-L6-v2")]
+        repo: String,
+
+        /// Optional revision, branch, tag, or commit.
+        #[arg(long)]
+        revision: Option<String>,
+
+        /// Config filename in the Hub repo, or a local path when all three file args are local.
+        #[arg(long, default_value = "config.json")]
+        config_file: String,
+
+        /// Tokenizer filename in the Hub repo, or a local path when all three file args are local.
+        #[arg(long, default_value = "tokenizer.json")]
+        tokenizer_file: String,
+
+        /// Safetensors filename in the Hub repo, or a local path when all three file args are local.
+        #[arg(long, default_value = "model.safetensors")]
+        weights_file: String,
+
+        /// Optional Hugging Face cache directory.
+        #[arg(long)]
+        cache_dir: Option<PathBuf>,
+
+        /// Text to embed in each benchmark batch. Repeat to increase batch size.
+        #[arg(long = "text")]
+        texts: Vec<String>,
+
+        /// Disable L2 normalization.
+        #[arg(long)]
+        no_normalize: bool,
+
+        /// Maximum tokenizer sequence length.
+        #[arg(long, default_value_t = 512)]
+        max_length: usize,
+
+        /// Backend: cpu, metal, or auto.
+        #[arg(long, default_value = "cpu", value_parser = parse_backend)]
+        backend: Backend,
+
+        /// Number of untimed warmup iterations.
+        #[arg(long, default_value_t = 2)]
+        warmup_iters: usize,
+
+        /// Number of timed iterations.
+        #[arg(long, default_value_t = 10)]
+        iters: usize,
+
+        /// Disable hf-hub progress bars.
+        #[arg(long)]
+        no_progress: bool,
+
+        /// Output benchmark metrics as JSON.
+        #[arg(long)]
+        json: bool,
+    },
+
     /// Open a small ratatui dashboard for a model file.
     Tui {
         /// Optional .safetensors or .gguf file to inspect.
@@ -219,6 +329,70 @@ fn main() -> Result<()> {
                 json,
                 no_progress,
             })?;
+        }
+        Commands::Similarity {
+            repo,
+            revision,
+            config_file,
+            tokenizer_file,
+            weights_file,
+            cache_dir,
+            texts,
+            no_normalize,
+            max_length,
+            backend,
+            no_progress,
+            json,
+        } => {
+            embeddings::run_similarity(embeddings::EmbedOptions {
+                repo,
+                revision,
+                config_file,
+                tokenizer_file,
+                weights_file,
+                cache_dir,
+                texts,
+                normalize: !no_normalize,
+                max_length,
+                backend,
+                json,
+                no_progress,
+            })?;
+        }
+        Commands::BenchEmbed {
+            repo,
+            revision,
+            config_file,
+            tokenizer_file,
+            weights_file,
+            cache_dir,
+            texts,
+            no_normalize,
+            max_length,
+            backend,
+            warmup_iters,
+            iters,
+            no_progress,
+            json,
+        } => {
+            embeddings::run_benchmark(
+                embeddings::EmbedOptions {
+                    repo,
+                    revision,
+                    config_file,
+                    tokenizer_file,
+                    weights_file,
+                    cache_dir,
+                    texts,
+                    normalize: !no_normalize,
+                    max_length,
+                    backend,
+                    json,
+                    no_progress,
+                },
+                warmup_iters,
+                iters,
+            )?;
         }
         Commands::Tui { path } => {
             tui::run(path.as_deref())?;

@@ -10,6 +10,8 @@ This lab supports:
 - Downloading model files from the Hugging Face Hub cache
 - Tokenizing text with a local `tokenizer.json`
 - Running BERT-style sentence embedding inference with Candle
+- Computing pairwise embedding similarity
+- Benchmarking embedding throughput and latency
 - Viewing model summaries in a `ratatui` terminal UI
 - Running CPU, Metal, or auto-selected matmul benchmarks
 
@@ -126,6 +128,56 @@ cargo run -- embed \
 Current embedding support is intentionally narrow: it targets BERT-compatible
 `model.safetensors` checkpoints such as common `sentence-transformers` models.
 GGUF embedding inference is not implemented.
+
+## Embedding Similarity
+
+Compute pairwise cosine similarity between two or more texts:
+
+```bash
+cargo run -- similarity \
+  --text "Candle runs local model inference." \
+  --text "Local embeddings can run with Candle." \
+  --text "The recipe uses fresh tomatoes."
+```
+
+Emit sorted pairwise scores as JSON:
+
+```bash
+cargo run -- similarity \
+  --text "first sentence" \
+  --text "second sentence" \
+  --json
+```
+
+## Embedding Benchmarks
+
+Benchmark embedding inference after loading the model once:
+
+```bash
+cargo run --release -- bench-embed \
+  --text "Candlebench embedding benchmark sentence." \
+  --warmup-iters 2 \
+  --iters 20
+```
+
+Repeat `--text` to benchmark a larger batch:
+
+```bash
+cargo run --release -- bench-embed \
+  --text "first benchmark sentence" \
+  --text "second benchmark sentence" \
+  --text "third benchmark sentence" \
+  --iters 20
+```
+
+On Apple Silicon with Metal enabled:
+
+```bash
+cargo run --release --features metal -- bench-embed \
+  --backend metal \
+  --text "Candlebench embedding benchmark sentence." \
+  --iters 20
+```
 
 ## TUI
 

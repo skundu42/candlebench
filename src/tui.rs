@@ -138,6 +138,8 @@ fn draw(frame: &mut ratatui::Frame<'_>, summary: Option<&ModelSummary>, scroll: 
                 ListItem::new("download --repo <id> <file> -- download from Hugging Face Hub"),
                 ListItem::new("tokenize <tokenizer.json> <text> -- inspect tokenizer output"),
                 ListItem::new("embed --text <text> -- run BERT-style embedding inference"),
+                ListItem::new("similarity --text <a> --text <b> -- compare embeddings"),
+                ListItem::new("bench-embed --text <text> -- benchmark embedding throughput"),
                 ListItem::new("bench-matmul --backend auto -- benchmark Candle matmul"),
             ];
             frame.render_widget(
